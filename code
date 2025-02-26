@@ -1,0 +1,144 @@
+// DC Motor Pin Definitions
+const int M1_IN1 = 2;
+const int M1_EN = 3;
+const int M2_IN1 = 4;
+const int M2_EN = 5;
+const int M3_IN1 = 6;
+const int M3_EN = 7;
+const int M4_IN1 = 8;
+const int M4_EN = 9;
+
+// Stepper Motor Pin Definitions (DM542)
+const int STEP1_PIN = 10;
+const int DIR1_PIN = 11;
+const int STEP2_PIN = 12;
+const int DIR2_PIN = 13;
+const int STEP3_PIN = 14;
+const int DIR3_PIN = 15;
+const int STEP4_PIN = 16;
+const int DIR4_PIN = 17;
+
+// Variables to control stepping
+int stepDelay = 500; // Delay between steps (can be adjusted)
+
+void setup() {
+  // Setup DC Motor Pins
+  pinMode(M1_IN1, OUTPUT);
+  pinMode(M1_EN, OUTPUT);
+  pinMode(M2_IN1, OUTPUT);
+  pinMode(M2_EN, OUTPUT);
+  pinMode(M3_IN1, OUTPUT);
+  pinMode(M3_EN, OUTPUT);
+  pinMode(M4_IN1, OUTPUT);
+  pinMode(M4_EN, OUTPUT);
+
+  // Setup Stepper Motor Pins
+  pinMode(STEP1_PIN, OUTPUT);
+  pinMode(DIR1_PIN, OUTPUT);
+  pinMode(STEP2_PIN, OUTPUT);
+  pinMode(DIR2_PIN, OUTPUT);
+  pinMode(STEP3_PIN, OUTPUT);
+  pinMode(DIR3_PIN, OUTPUT);
+  pinMode(STEP4_PIN, OUTPUT);
+  pinMode(DIR4_PIN, OUTPUT);
+
+  // Start Serial communication
+  Serial.begin(9600);
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    // Read incoming command from the app
+    String command = Serial.readStringUntil('\n');
+    command.trim();  // Remove any extra whitespace or newline characters
+
+    if (command == "W") {
+      // Move all DC motors forward
+      moveDCMotorsForward();
+    } 
+    else if (command == "S") {
+      // Stop all DC motors
+      stopDCMotors();
+    } 
+    else if (command == "R") {
+      // Move all stepper motors to the right (clockwise)
+      rotateSteppers(true);
+    } 
+    else if (command == "L") {
+      // Move all stepper motors to the left (counterclockwise)
+      rotateSteppers(false);
+    }
+    else if (command == "STOP") {
+      // Stop all stepper motors
+      stopSteppers();
+    }
+  }
+}
+
+// Function to move all DC motors forward
+void moveDCMotorsForward() {
+  // Motor 1
+  digitalWrite(M1_IN1, HIGH);
+  analogWrite(M1_EN, 255);  // Full speed
+
+  // Motor 2
+  digitalWrite(M2_IN1, HIGH);
+  analogWrite(M2_EN, 255);
+
+  // Motor 3
+  digitalWrite(M3_IN1, HIGH);
+  analogWrite(M3_EN, 255);
+
+  // Motor 4
+  digitalWrite(M4_IN1, HIGH);
+  analogWrite(M4_EN, 255);
+}
+
+// Function to stop all DC motors
+void stopDCMotors() {
+  analogWrite(M1_EN, 0);
+  analogWrite(M2_EN, 0);
+  analogWrite(M3_EN, 0);
+  analogWrite(M4_EN, 0);
+}
+
+// Function to rotate all steppers either right (clockwise) or left (counterclockwise)
+void rotateSteppers(bool clockwise) {
+  // Set direction for all steppers
+  digitalWrite(DIR1_PIN, clockwise ? HIGH : LOW);
+  digitalWrite(DIR2_PIN, clockwise ? HIGH : LOW);
+  digitalWrite(DIR3_PIN, clockwise ? HIGH : LOW);
+  digitalWrite(DIR4_PIN, clockwise ? HIGH : LOW);
+
+  // Move stepper motors a few steps
+  for (int i = 0; i < 200; i++) {  // Adjust the step count as per motor configuration
+    // Stepper 1
+    digitalWrite(STEP1_PIN, HIGH);
+    delayMicroseconds(stepDelay);
+    digitalWrite(STEP1_PIN, LOW);
+    delayMicroseconds(stepDelay);
+
+    // Stepper 2
+    digitalWrite(STEP2_PIN, HIGH);
+    delayMicroseconds(stepDelay);
+    digitalWrite(STEP2_PIN, LOW);
+    delayMicroseconds(stepDelay);
+
+    // Stepper 3
+    digitalWrite(STEP3_PIN, HIGH);
+    delayMicroseconds(stepDelay);
+    digitalWrite(STEP3_PIN, LOW);
+    delayMicroseconds(stepDelay);
+
+    // Stepper 4
+    digitalWrite(STEP4_PIN, HIGH);
+    delayMicroseconds(stepDelay);
+    digitalWrite(STEP4_PIN, LOW);
+    delayMicroseconds(stepDelay);
+  }
+}
+
+// Function to stop all steppers
+void stopSteppers() {
+  // No action needed; the stepper will stop if no step signal is sent
+}
